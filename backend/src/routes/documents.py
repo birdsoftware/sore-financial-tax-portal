@@ -16,7 +16,7 @@ def allowed_file(filename):
 @jwt_required()
 def get_documents():
     user_id = int(get_jwt_identity())
-    documents = TaxTaxDocument.query.filter_by(user_id=user_id).all()
+    documents = TaxDocument.query.filter_by(user_id=user_id).all()
     return jsonify([doc.to_dict() for doc in documents]), 200
 
 @documents_bp.route('/documents', methods=['POST'])

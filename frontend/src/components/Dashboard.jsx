@@ -56,6 +56,9 @@ const Dashboard = () => {
     const file = event.target.files[0];
     if (!file) return;
 
+    // Show loading state
+    setLoading(true);
+
     const formData = new FormData();
     formData.append('file', file);
     
@@ -68,12 +71,21 @@ const Dashboard = () => {
     }
 
     try {
-      await axios.post(`/api/${type === 'document' ? 'documents' : 'receipts'}`, formData, {
+      const response = await axios.post(`/api/${type === 'document' ? 'documents' : 'receipts'}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      fetchData(); // Refresh data
+      
+      console.log('Upload successful:', response.data);
+      await fetchData(); // Refresh data
+      
+      // Clear the file input
+      event.target.value = '';
+      
     } catch (error) {
       console.error('Upload error:', error);
+      alert(`Upload failed: ${error.response?.data?.error || error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -188,13 +200,32 @@ const Dashboard = () => {
                 <CardDescription>Common tasks to get you started</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Button className="h-20 flex-col gap-2">
-                  <Upload className="h-6 w-6" />
-                  Upload Documents
+                {/* Hidden file input for quick upload */}
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => handleFileUpload(e, 'document')}
+                  className="hidden"
+                  id="quick-document-upload"
+                />
+                <Button className="h-20 flex-col gap-2" asChild>
+                  <label htmlFor="quick-document-upload" className="cursor-pointer">
+                    <Upload className="h-6 w-6" />
+                    Upload Documents
+                  </label>
                 </Button>
-                <Button variant="outline" className="h-20 flex-col gap-2">
-                  <Receipt className="h-6 w-6" />
-                  Add Receipt
+                <input
+                  type="file"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  onChange={(e) => handleFileUpload(e, 'receipt')}
+                  className="hidden"
+                  id="quick-receipt-upload"
+                />
+                <Button variant="outline" className="h-20 flex-col gap-2" asChild>
+                  <label htmlFor="quick-receipt-upload" className="cursor-pointer">
+                    <Receipt className="h-6 w-6" />
+                    Add Receipt
+                  </label>
                 </Button>
                 <Button variant="outline" className="h-20 flex-col gap-2" onClick={createTaxReturn}>
                   <Plus className="h-6 w-6" />

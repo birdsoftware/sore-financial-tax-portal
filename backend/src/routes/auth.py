@@ -17,11 +17,19 @@ def register():
         return jsonify({'error': 'User already exists'}), 400
     
     # Create new user
+    profile = data.get('profile', {})
+    
+    # Handle first_name and last_name from frontend
+    if data.get('first_name'):
+        profile['first_name'] = data['first_name']
+    if data.get('last_name'):
+        profile['last_name'] = data['last_name']
+    
     user = User(
         email=data['email'],
         user_type=data['user_type'],
         phone_number=data.get('phone_number'),
-        profile=data.get('profile', {})
+        profile=profile
     )
     user.set_password(data['password'])
     
